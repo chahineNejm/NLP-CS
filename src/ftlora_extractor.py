@@ -14,7 +14,7 @@ ASPECTS = ["Price", "Food", "Service"]
 
 SYSTEM = (
     "Classify a French restaurant review on three aspects: Price, Food, Service. "
-    "Each label is one of: Positive, Negative, Mixed, NoOpinion. "
+    "Each label is one of: Positive, Negative, Mixed, No Opinion. "
     "Respond exactly as: Price=<label>; Food=<label>; Service=<label>."
 )
 
