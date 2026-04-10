@@ -63,7 +63,7 @@ For our configuration, LoRA yields exactly **4,587,520 trainable parameters out 
 | `lora_dropout` | 0.05 | Light regularization against the ~4k noisy training examples. |
 | `target_modules` | Q, K, V, O projections | Only the attention projection matrices are adapted. |
 
-**Why adapt only Q, K, V, and O?** In a transformer block, the attention projections define *what the model attends to*, while the MLP projections act more like a frozen feature bank of general linguistic knowledge. The original LoRA paper found that adapting attention projections captures most of the task-specific gain for downstream adaptation, and this has become standard practice (at least I have heard this repeatedly in multiple classes).
+**Why adapt only Q, K, V, and O?** In a transformer block, the attention projections define *what the model attends to*, while the MLP projections act more like a frozen feature bank of general linguistic knowledge. The original LoRA paper found that adapting attention projections captures most of the task-specific gain for downstream adaptation, and this has become standard practice (at least I have heard this repeatedly in multiple courses).
 
 
 ## 3. Results
