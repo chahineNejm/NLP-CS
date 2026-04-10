@@ -20,7 +20,7 @@
 
 We tackle aspect-based sentiment classification on French restaurant reviews from the project dataset. For each review, the system must assign one of four labels: **Positive, Negative, Mixed, No Opinion**, to each of three aspects: **Price, Food, Service**.
 
-Rather than treating this as three independent classification heads, we frame it as a single **sequence-to-sequence generation problem**: given the review, the model emits a structured triplet in a fixed format.
+Rather than treating this as three independent classification heads, we frame it as a single **sequence-to-sequence generation problem**.
 
 ## 2. Approach: LoRA Fine-Tuning of Qwen3-0.6B
 
@@ -43,15 +43,14 @@ def format_example(ex: dict, with_target: bool = True) -> str:
         return prompt
     return prompt + f"Price={ex['Price']}; Food={ex['Food']}; Service={ex['Service']}"
 ```
-
-Three design decisions matter here:
+we have for this setting:
 
 - **Unified output schema.** All three aspects are predicted jointly in one generation pass, letting the model reason about them coherently rather than making isolated decisions.
 - **Deterministic parseable format.** The fixed `Price=...; Food=...; Service=...` template makes parsing at inference time reliable, and because the target is always the same shape, the model learns the format quickly.
 
 ### 2.2 Parameter-Efficient Fine-Tuning with LoRA
 
-We use **Low-Rank Adaptation**, which freezes the pre-trained weights entirely and injects small trainable low-rank matrices into selected layers. This gives three practical benefits: memory consumption drops sharply as the major bottle neck in our training is the inference time of the larger model(tiny comparatively to the backpropagation required for a full model gradient), and the resulting adapter is very small (~20 MB) and can be loaded on top of the unchanged base model for inference.
+We use **Low-Rank Adaptation**, which freezes the pre-trained weights entirely and injects small trainable low-rank matrices into selected layers. This gives practical benefits: memory consumption drops sharply as the major bottle neck in our training is the inference time of the larger model(tiny comparatively to the backpropagation required for a full model gradient), and the resulting adapter is very small (~20 MB) and can be loaded on top of the unchanged base model for inference.
 
 For our configuration, LoRA yields exactly **4,587,520 trainable parameters out of 600,637,440 total (0.7638%)**  a ~130× reduction in the optimization footprint.
 

@@ -94,6 +94,7 @@ class OpinionExtractor:
         self.tokenizer = tokenizer
         self.model.config.use_cache = True
         self.model.eval()
+        
 # DO NOT MODIFY THE SIGNATURE OF THIS METHOD, add code to implement it
     def predict(self, texts: list[str]) -> list[dict]:
         """
