@@ -18,7 +18,7 @@
 
 ## 1. Task
 
-We tackle aspect-based sentiment classification on French restaurant reviews from the project dataset. For each review, the system must assign one of four labels — **Positive, Negative, Mixed, No Opinion** — to each of three aspects: **Price, Food, Service**.
+We tackle aspect-based sentiment classification on French restaurant reviews from the project dataset. For each review, the system must assign one of four labels: **Positive, Negative, Mixed, No Opinion**, to each of three aspects: **Price, Food, Service**.
 
 Rather than treating this as three independent classification heads, we frame it as a single **sequence-to-sequence generation problem**: given the review, the model emits a structured triplet in a fixed format.
 
@@ -52,9 +52,9 @@ Three design decisions matter here:
 
 ### 2.2 Parameter-Efficient Fine-Tuning with LoRA
 
-We use **Low-Rank Adaptation**, which freezes the pre-trained weights entirely and injects small trainable low-rank matrices into selected layers. This gives three practical benefits: memory consumption drops sharply (no optimizer states for frozen weights — critical on a 16 GB T4) as the major bottle neck in our training is the inference time of the larger model(tiny comparatively to the backpropagation required for a full model gradient), and the resulting adapter is very small (~20 MB) and can be loaded on top of the unchanged base model for inference.
+We use **Low-Rank Adaptation**, which freezes the pre-trained weights entirely and injects small trainable low-rank matrices into selected layers. This gives three practical benefits: memory consumption drops sharply as the major bottle neck in our training is the inference time of the larger model(tiny comparatively to the backpropagation required for a full model gradient), and the resulting adapter is very small (~20 MB) and can be loaded on top of the unchanged base model for inference.
 
-For our configuration, LoRA yields exactly **4,587,520 trainable parameters out of 600,637,440 total (0.7638%)** — a ~130× reduction in the optimization footprint.
+For our configuration, LoRA yields exactly **4,587,520 trainable parameters out of 600,637,440 total (0.7638%)**  a ~130× reduction in the optimization footprint.
 
 **Our LoRA hyperparameters and their rationale:**
 
@@ -79,7 +79,7 @@ For our configuration, LoRA yields exactly **4,587,520 trainable parameters out 
 | Training time per run | ~10 min |
 | Inference time per dev split | ~10 min (60 batches) |
 
-I personally find it very interesting that training an inference last the same time approx. this is trully a statement on how effective the lora idea is as trianing in general is much much longer but since in this case lora is so tiny..
+I find it interesting that training and inference took roughly the same time. This isn't really a LoRA effect. LoRA has no effect on the forward pass cost, since each pass still runs through the full frozen base model.
 ## 4. Possible Extensions
 
 - **Quantization (QLoRA).** Loading the base model in 4-bit via bitsandbytes would cut memory further and allow fine-tuning larger backbones (Qwen3-1.7B or Qwen3-4B) under the same VRAM budget. *Not used here as bitsandbytes is not on the authorized library list.*
