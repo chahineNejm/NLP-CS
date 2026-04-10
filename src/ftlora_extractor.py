@@ -42,6 +42,7 @@ class OpinionExtractor:
         """
         Trains the model, if OpinionExtractor.method=="FT"
         """
+        print("SAMPLE:", train_data[0])
         tokenizer = AutoTokenizer.from_pretrained(self.BASE_MODEL_ID)
         if tokenizer.pad_token is None:
             tokenizer.pad_token = tokenizer.eos_token
