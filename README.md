@@ -1,8 +1,8 @@
 # French Restaurant Reviews classification
 
-\\ **Authors:** Chahine Nejma
-\\ **Approach:** Approach 2 — LoRA fine-tuning
-\\ **Base model:** `Qwen/Qwen3-0.6B`
+**Authors:** Chahine Nejma
+**Approach:** Approach 2 — LoRA fine-tuning
+**Base model:** `Qwen/Qwen3-0.6B`
 
 ### Dev macro-accuracy
 
