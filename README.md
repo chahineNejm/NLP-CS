@@ -1,8 +1,8 @@
-# Aspect-Based Opinion Extraction on French Restaurant Reviews
+# French Restaurant Reviews classification
 
-**Authors:** Chahine Nejma
-**Approach:** Approach 2 — LoRA fine-tuning
-**Base model:** `Qwen/Qwen3-0.6B`
+\n**Authors:** Chahine Nejma
+\n**Approach:** Approach 2 — LoRA fine-tuning
+\n**Base model:** `Qwen/Qwen3-0.6B`
 
 ### Dev macro-accuracy
 
