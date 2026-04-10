@@ -24,7 +24,7 @@ Rather than treating this as three independent classification heads, we frame it
 
 ## 2. Approach: LoRA Fine-Tuning of Qwen3-0.6B
 
-We chose **Approach 2** (LoRA fine-tuning via TRL + PEFT) with `Qwen/Qwen3-0.6B` as the base model. Qwen3-0.6B is the smallest authorized model in the list and was selected to keep training tractable on modest hardware we ran everything on **Google Colab's free tier (single T4 GPU, 16 GB VRAM, fp16)** while still providing a capable multilingual backbone that handles French reviews natively. The small footprint also kept iteration cycles short (~10 min per training run).
+We chose **Approach 2** (LoRA fine-tuning via TRL + PEFT) with `Qwen/Qwen3-0.6B` as the base model. Qwen3-0.6B is the smallest authorized model in the list and was selected to keep training tractable on modest hardware. We ran everything on **Google Colab's free tier (single T4 GPU, 16 GB VRAM, fp16)**. The small footprint also kept iteration cycles short (~10 min per training run).
 
 ### 2.1 Prompt Formatting and Chat Template
 
