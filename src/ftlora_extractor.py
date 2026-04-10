@@ -20,7 +20,7 @@ SYSTEM = (
 
 ########## generation de prompts complet pour entrainer le models completement
 def format_example(ex: dict, with_target: bool = True) -> str:
-    prompt = f"{SYSTEM}\nReview: {ex['review'].strip()}\nAnswer: "
+    prompt = f"{SYSTEM}\nReview: {ex['Review'].strip()}\nAnswer: "
     if not with_target:
         return prompt
     return prompt + f"Price={ex['Price']}; Food={ex['Food']}; Service={ex['Service']}"
@@ -115,7 +115,7 @@ class OpinionExtractor:
         device = next(self.model.parameters()).device
         results = []
         for review in texts:
-            prompt = format_example({"review": review}, with_target=False)
+            prompt = format_example({"Review": review}, with_target=False)
             inputs = self.tokenizer(prompt, return_tensors="pt",
                                     truncation=True, max_length=512).to(device)
             with torch.no_grad():
@@ -126,9 +126,9 @@ class OpinionExtractor:
             decoded = self.tokenizer.decode(
                 gen[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True,
             )
-            out = {a: "NoOpinion" for a in ASPECTS}
+            out = {a: "No Opinion" for a in ASPECTS}
             for a in ASPECTS:
-                m = re.search(rf"{a}\s*=\s*(Positive|Negative|Mixed|NoOpinion)", decoded)
+                m = re.search(rf"{a}\s*=\s*(Positive|Negative|Mixed|No Opinion)", decoded)
                 if m:
                     out[a] = m.group(1)
             results.append(out)
