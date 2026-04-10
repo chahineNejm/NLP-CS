@@ -67,7 +67,7 @@ class OpinionExtractor:
 
         trainer = SFTTrainer(
             model=model,
-            tokenizer=tokenizer,
+            processing_class=tokenizer,
             train_dataset=train_ds,
             args=SFTConfig(
     output_dir=self.OUTPUT_DIR,
