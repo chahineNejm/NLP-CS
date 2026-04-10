@@ -48,7 +48,6 @@ Three design decisions matter here:
 
 - **Unified output schema.** All three aspects are predicted jointly in one generation pass, letting the model reason about them coherently rather than making isolated decisions.
 - **Deterministic parseable format.** The fixed `Price=...; Food=...; Service=...` template makes parsing at inference time reliable, and because the target is always the same shape, the model learns the format quickly.
-- **Same function for training and inference.** The `with_target` flag lets us reuse one formatting function for both supervised fine-tuning (full sequence) and prediction (prompt only).
 
 ### 2.2 Parameter-Efficient Fine-Tuning with LoRA
 
