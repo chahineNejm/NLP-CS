@@ -123,7 +123,7 @@ Base model:  Price=Negative; Food=Positive; Service=Negative.
 
 | | Price | Food | Service |
 |---|---|---|---|
-| Ture | No Opinion | Positive | Negative |
+| True | No Opinion | Positive | Negative |
 | Base model | Negative | Positive | Negative |
 | Fine-tuned | No Opinion | Positive | Negative |
 
