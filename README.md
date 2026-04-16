@@ -102,7 +102,7 @@ Training and inference take roughly the same time because LoRA does not affect f
 ### 3.3 Base model vs. fine-tuned model: qualitative comparison
 
 The following samples illustrate how the base Qwen3-0.6B (without fine-tuning) compares to the LoRA-fine-tuned model on the same inputs, and through the same promt behavior.
-I was suprised by the fact that through simple promting the baseline model was able to mimic the output format disired.
+I was suprised by the fact that through simple prompting the baseline model was able to mimic the output format disired.
 
 **Sample 1** — *"J'en ai marre car je ne trouve pas de critiques péjoratives! C'est une valeur sûr..."*
 Raw out:  Price=No Opinion; Food=Positive; Service=Positive
