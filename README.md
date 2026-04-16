@@ -65,46 +65,78 @@ For our configuration, LoRA yields exactly **4,587,520 trainable parameters out 
 
 **Why adapt only Q, K, V, and O?** In a transformer block, the attention projections define *what the model attends to*, while the MLP projections act more like a frozen feature bank of general linguistic knowledge. The original LoRA paper found that adapting attention projections captures most of the task-specific gain for downstream adaptation, and this has become standard practice (at least I have heard this repeatedly in multiple courses).
 
-
 ## 3. Results
-RunPriceFoodServiceMacro Acc179.8380.5082.1780.83279.6781.3381.3380.78379.3381.6781.5080.83479.3381.3380.8380.50579.5081.3381.8380.89Avg79.5381.2381.5380.77
-The variance is very tight (80.50–80.89), which is a good sign — your pipeline is stable across seeds.
+
+### 3.1 Evaluation over 5 runs
+
+| Run | Price | Food | Service | Macro Acc |
+|-----|-------|------|---------|-----------|
+| 1 | 79.83 | 80.50 | 82.17 | 80.83 |
+| 2 | 79.67 | 81.33 | 81.33 | 80.78 |
+| 3 | 79.33 | 81.67 | 81.50 | 80.83 |
+| 4 | 79.33 | 81.33 | 80.83 | 80.50 |
+| 5 | 79.50 | 81.33 | 81.83 | 80.89 |
+| **Avg** | **79.53** | **81.23** | **81.53** | **80.77** |
+
+The variance across runs is very tight (80.50–80.89), indicating a stable pipeline across random seeds.
+
+### 3.2 Summary
+
 | Metric | Value |
 |---|---|
-| **Dev macro-accuracy** | **81.00%** |
-| Price accuracy | 79.67% |
-| Food accuracy | 81.33% |
-| Service accuracy | 82.00% |
+
 | Trainable parameters | 4,587,520 / 600,637,440 (0.76%) |
 | Training time per run | ~10 min |
 | Inference time per dev split | ~10 min (60 batches) |
 
-I find it interesting that training and inference took roughly the same time. LoRA has no effect on the forward pass cost, since each pass still runs through the full frozen base model and this is mostly a statement on how powerfull the method is compared to fully trainable model.
+Training and inference take roughly the same time because LoRA does not affect forward pass cost — each pass still runs through the full frozen base model. The adapter only adds a negligible overhead. This highlights the efficiency of the method: LoRA fine-tunes less than 1% of the parameters while achieving strong performance.
 
-exemples of output and parsing from predict: 
---- Sample 1 ---
-Review:  J en ai mare car je ne trouve pas de critiques péjoratives! C est une valeur sûr...
+### 3.3 Base model vs. fine-tuned model: qualitative comparison
+
+The following samples illustrate how the base Qwen3-0.6B (without fine-tuning) compares to the LoRA-fine-tuned model on the same inputs, and through the same promt behavior.
+I was suprised by the fact that through simple promting the baseline model was able to mimic the output format disired.
+
+**Sample 1** — *"J'en ai marre car je ne trouve pas de critiques péjoratives! C'est une valeur sûr..."*
 Raw out:  Price=No Opinion; Food=Positive; Service=Positive
-Pred:    {'Price': 'No Opinion', 'Food': 'Positive', 'Service': 'Positive'}
-Gold:    {'Price': 'No Opinion', 'Food': 'Positive', 'Service': 'Positive'}
-Correct: True
+Base model:  Price=Negative; Food=Positive; Service=Positive.
 
---- Sample 2 ---
-Review:  Très longue attente mais personnel agréable et sympathique.  Velouté de légume e...
+| | Price | Food | Service |
+|---|---|---|---|
+| Gold | No Opinion | Positive | Positive |
+| Base model | Negative | Positive | Positive |
+| Fine-tuned | No Opinion | Positive | Positive |
+
+
+**Sample 2** — *"Très longue attente mais personnel agréable et sympathique. Velouté de légume e..."*
 Raw out:  Price=No Opinion; Food=Negative; Service=Positive
-Pred:    {'Price': 'No Opinion', 'Food': 'Negative', 'Service': 'Positive'}
-Gold:    {'Price': 'No Opinion', 'Food': 'Negative', 'Service': 'Mixed'}
-Correct: False
+Base model:  Price=Negative; Food=Positive; Service=Mixed.
 
---- Sample 3 ---
-Review:  Très jolie vue sur la baie  Service très lent les 2 tables qui nous entouraient ...
+| | Price | Food | Service |
+|---|---|---|---|
+| Gold | No Opinion | Negative | Mixed |
+| Base model | Negative | Positive | Mixed |
+| Fine-tuned | No Opinion | Negative | Positive |
+
+
+**Sample 3** — *"Très jolie vue sur la baie. Service très lent, les 2 tables qui nous entouraient..."*
 Raw out:  Price=No Opinion; Food=Positive; Service=Negative
-Pred:    {'Price': 'No Opinion', 'Food': 'Positive', 'Service': 'Negative'}
-Gold:    {'Price': 'No Opinion', 'Food': 'Positive', 'Service': 'Negative'}
-Correct: True
+Base model:  Price=Negative; Food=Positive; Service=Negative.
+
+| | Price | Food | Service |
+|---|---|---|---|
+| Gold | No Opinion | Positive | Negative |
+| Base model | Negative | Positive | Negative |
+| Fine-tuned | No Opinion | Positive | Negative |
+
+
+**Key observations:** The base model tends to default to "Negative" for Price even when the review expresses no opinion on pricing, suggesting it lacks the nuance to distinguish absence of opinion from negative sentiment. The fine-tuned model handles "No Opinion" reliably, which is consistent with its stronger Price accuracy (79.53% vs. the base model's tendency to over-predict Negative).
+
+### 3.4 Output format compliance
+
+The fine-tuned model outputs the exact expected format (`Price=<label>; Food=<label>; Service=<label>`) on 100% of evaluated samples. No parse failures were observed — every prediction was genuinely produced by the model, not a regex fallback default. This confirms that the SFT training successfully taught the model both the task semantics and the output structure.
 
 ## 4. Possible Extensions
--**Constrained decoding forces the mode** we saw no use for this ( we checked formating of the output and no deviations where seen) 
+- **Constrained decoding** Constrained decoding forces the model to only generate tokens that are compatible with a predefined output format, defined via a regex or grammar. In our case, we verified format compliance on all evaluated samples and found zero deviations; the SFT training already taught the model the exact output structure. Therefore, constrained decoding would add complexity with no accuracy benefit.
 
 - **Quantization (QLoRA).** Loading the base model in 4-bit via bitsandbytes would cut memory further and allow fine-tuning larger backbones (Qwen3-1.7B or Qwen3-4B) under the same VRAM budget. *Not used here as bitsandbytes is not on the authorized library list.*
 
