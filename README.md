@@ -84,7 +84,6 @@ The variance across runs is very tight (80.50–80.89), indicating a stable pipe
 
 | Metric | Value |
 |---|---|
-
 | Trainable parameters | 4,587,520 / 600,637,440 (0.76%) |
 | Training time per run | ~10 min |
 | Inference time per dev split | ~10 min (60 batches) |
