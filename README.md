@@ -78,6 +78,29 @@ For our configuration, LoRA yields exactly **4,587,520 trainable parameters out 
 | Inference time per dev split | ~10 min (60 batches) |
 
 I find it interesting that training and inference took roughly the same time. LoRA has no effect on the forward pass cost, since each pass still runs through the full frozen base model and this is mostly a statement on how powerfull the method is compared to fully trainable model.
+
+exemples of output and parsing from predict: 
+--- Sample 1 ---
+Review:  J en ai mare car je ne trouve pas de critiques péjoratives! C est une valeur sûr...
+Raw out:  Price=No Opinion; Food=Positive; Service=Positive
+Pred:    {'Price': 'No Opinion', 'Food': 'Positive', 'Service': 'Positive'}
+Gold:    {'Price': 'No Opinion', 'Food': 'Positive', 'Service': 'Positive'}
+Correct: True
+
+--- Sample 2 ---
+Review:  Très longue attente mais personnel agréable et sympathique.  Velouté de légume e...
+Raw out:  Price=No Opinion; Food=Negative; Service=Positive
+Pred:    {'Price': 'No Opinion', 'Food': 'Negative', 'Service': 'Positive'}
+Gold:    {'Price': 'No Opinion', 'Food': 'Negative', 'Service': 'Mixed'}
+Correct: False
+
+--- Sample 3 ---
+Review:  Très jolie vue sur la baie  Service très lent les 2 tables qui nous entouraient ...
+Raw out:  Price=No Opinion; Food=Positive; Service=Negative
+Pred:    {'Price': 'No Opinion', 'Food': 'Positive', 'Service': 'Negative'}
+Gold:    {'Price': 'No Opinion', 'Food': 'Positive', 'Service': 'Negative'}
+Correct: True
+
 ## 4. Possible Extensions
 
 - **Quantization (QLoRA).** Loading the base model in 4-bit via bitsandbytes would cut memory further and allow fine-tuning larger backbones (Qwen3-1.7B or Qwen3-4B) under the same VRAM budget. *Not used here as bitsandbytes is not on the authorized library list.*
