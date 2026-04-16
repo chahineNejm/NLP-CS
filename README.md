@@ -101,7 +101,7 @@ Base model:  Price=Negative; Food=Positive; Service=Positive.
 
 | | Price | Food | Service |
 |---|---|---|---|
-| Gold | No Opinion | Positive | Positive |
+| True | No Opinion | Positive | Positive |
 | Base model | Negative | Positive | Positive |
 | Fine-tuned | No Opinion | Positive | Positive |
 
@@ -112,7 +112,7 @@ Base model:  Price=Negative; Food=Positive; Service=Mixed.
 
 | | Price | Food | Service |
 |---|---|---|---|
-| Gold | No Opinion | Negative | Mixed |
+| True | No Opinion | Negative | Mixed |
 | Base model | Negative | Positive | Mixed |
 | Fine-tuned | No Opinion | Negative | Positive |
 
@@ -123,7 +123,7 @@ Base model:  Price=Negative; Food=Positive; Service=Negative.
 
 | | Price | Food | Service |
 |---|---|---|---|
-| Gold | No Opinion | Positive | Negative |
+| Ture | No Opinion | Positive | Negative |
 | Base model | Negative | Positive | Negative |
 | Fine-tuned | No Opinion | Positive | Negative |
 
