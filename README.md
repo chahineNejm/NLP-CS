@@ -80,6 +80,15 @@ For our configuration, LoRA yields exactly **4,587,520 trainable parameters out 
 
 The variance across runs is very tight (80.50–80.89), indicating a stable pipeline across random seeds.
 
+To quantify the impact of LoRA fine-tuning, we evaluated the base Qwen3-0.6B model (without any fine-tuning) on the full training set using the same prompt template:
+
+| Metric | Base model | Fine-tuned (LoRA) |
+|---|---|---|
+| Price | 25.89% | 79.53% |
+| Food | 77.48% | 81.23% |
+| Service | 63.83% | 81.53% |
+| **Macro** | **55.73%** | **80.77%** |
+
 ### 3.2 Summary
 
 | Metric | Value |
