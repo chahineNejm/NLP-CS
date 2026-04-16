@@ -82,7 +82,7 @@ The variance across runs is very tight (80.50–80.89), indicating a stable pipe
 
 To quantify the impact of LoRA fine-tuning, we evaluated the base Qwen3-0.6B model (without any fine-tuning) on the full training set using the same prompt template:
 
-| Metric | Base model | Fine-tuned (LoRA) |
+| Metric | Base model | LoRA |
 |---|---|---|
 | Price | 25.89% | 79.53% |
 | Food | 77.48% | 81.23% |
