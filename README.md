@@ -88,7 +88,7 @@ The variance across runs is very tight (80.50–80.89), indicating a stable pipe
 | Training time per run | ~10 min |
 | Inference time per dev split | ~10 min (60 batches) |
 
-Training and inference take roughly the same time because LoRA does not affect forward pass cost — each pass still runs through the full frozen base model. The adapter only adds a negligible overhead. This highlights the efficiency of the method: LoRA fine-tunes less than 1% of the parameters while achieving strong performance.
+Training and inference take roughly the same time because LoRA does not affect forward pass cost, each pass still runs through the full frozen base model. The adapter only adds a negligible overhead. This highlights the efficiency of the method: LoRA fine-tunes less than 1% of the parameters while achieving strong performance.
 
 ### 3.3 Base model vs. fine-tuned model: qualitative comparison
 
@@ -132,7 +132,7 @@ Base model:  Price=Negative; Food=Positive; Service=Negative.
 
 ### 3.4 Output format compliance
 
-The fine-tuned model outputs the exact expected format (`Price=<label>; Food=<label>; Service=<label>`) on 100% of evaluated samples. No parse failures were observed — every prediction was genuinely produced by the model, not a regex fallback default. This confirms that the SFT training successfully taught the model both the task semantics and the output structure.
+The fine-tuned model outputs the exact expected format (`Price=<label>; Food=<label>; Service=<label>`) on 100% of evaluated samples. No parse failures were observed. Every prediction was genuinely produced by the model, not a regex fallback default. This confirms that the SFT training successfully taught the model both the task semantics and the output structure.
 
 ## 4. Possible Extensions
 - **Constrained decoding** Constrained decoding forces the model to only generate tokens that are compatible with a predefined output format, defined via a regex or grammar. In our case, we verified format compliance on all evaluated samples and found zero deviations; the SFT training already taught the model the exact output structure. Therefore, constrained decoding would add complexity with no accuracy benefit.
