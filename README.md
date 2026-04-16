@@ -102,7 +102,7 @@ Gold:    {'Price': 'No Opinion', 'Food': 'Positive', 'Service': 'Negative'}
 Correct: True
 
 ## 4. Possible Extensions
--**Constrained decoding forces the mode** we saw no use for this...
+-**Constrained decoding forces the mode** we saw no use for this ( we checked formating of the output and no deviations where seen) 
 
 - **Quantization (QLoRA).** Loading the base model in 4-bit via bitsandbytes would cut memory further and allow fine-tuning larger backbones (Qwen3-1.7B or Qwen3-4B) under the same VRAM budget. *Not used here as bitsandbytes is not on the authorized library list.*
 
