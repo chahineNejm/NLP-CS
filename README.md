@@ -10,8 +10,7 @@
 |---|---|---|---|
 | 79.67 | 81.33 | 82.00 | **81.00** |
 
-RunPriceFoodServiceMacro Acc179.8380.5082.1780.83279.6781.3381.3380.78379.3381.6781.5080.83479.3381.3380.8380.50579.5081.3381.8380.89Avg79.5381.2381.5380.77
-The variance is very tight (80.50–80.89), which is a good sign — your pipeline is stable across seeds.
+
 <center>
 <img src='https://onedrive.live.com/embed?resid=AE69638675180117%21292802&authkey=%21AO_qaECmI1InIyg&width=634&height=556' width="500">
 
@@ -68,7 +67,8 @@ For our configuration, LoRA yields exactly **4,587,520 trainable parameters out 
 
 
 ## 3. Results
-
+RunPriceFoodServiceMacro Acc179.8380.5082.1780.83279.6781.3381.3380.78379.3381.6781.5080.83479.3381.3380.8380.50579.5081.3381.8380.89Avg79.5381.2381.5380.77
+The variance is very tight (80.50–80.89), which is a good sign — your pipeline is stable across seeds.
 | Metric | Value |
 |---|---|
 | **Dev macro-accuracy** | **81.00%** |
