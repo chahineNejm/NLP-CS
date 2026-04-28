@@ -29,7 +29,7 @@ def format_example(ex: dict, with_target: bool = True) -> str:
 class OpinionExtractor:
     # SET THE FOLLOWING CLASS VARIABLE to "FT" if you implemented a fine-tuning approach
     method: Literal["NOFT", "FT"] = "FT"
-    BASE_MODEL_ID = "Qwen/Qwen3-0.6B" ### contrainte du PDF , aussi choix du model pour tester sur colab
+    BASE_MODEL_ID = "Qwen/Qwen3-1.7B" ### contrainte du PDF , aussi choix du model pour tester sur colab
     OUTPUT_DIR = "experiments"
 
     # DO NOT MODIFY THE SIGNATURE OF THIS METHOD, add code to implement it
@@ -53,7 +53,7 @@ class OpinionExtractor:
         model.config.pad_token_id = tokenizer.pad_token_id
 
         model = get_peft_model(model, LoraConfig(
-            r=16, lora_alpha=32, lora_dropout=0.05, bias="none",
+            r=32 , lora_alpha=64, lora_dropout=0.05, bias="none",
             task_type="CAUSAL_LM",
             target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
         ))
@@ -73,7 +73,7 @@ class OpinionExtractor:
     output_dir=self.OUTPUT_DIR,
     per_device_train_batch_size=4,
     gradient_accumulation_steps=grad_accum,
-    num_train_epochs=1,
+    num_train_epochs=3,
     learning_rate=lr,
     fp16=True,
     logging_steps=20,
