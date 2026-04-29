@@ -58,7 +58,8 @@ We use **Low-Rank Adaptation**, which freezes the pre-trained weights entirely a
 For our configuration, LoRA yields exactly **4,587,520 trainable parameters out of 600,637,440 total (0.7638%)**  a ~130× reduction in the optimization footprint.
 
 **Our LoRA hyperparameters and their rationale:**
-\n**first setting:**
+
+**first setting:**
 | Parameter | Value | Rationale |
 |---|---|---|
 | `r` (rank) | 16 | Balances expressiveness and memory; a common sweet spot for instruction-style fine-tuning. |
@@ -69,7 +70,8 @@ For our configuration, LoRA yields exactly **4,587,520 trainable parameters out 
 **Why adapt only Q, K, V, and O?** In a transformer block, the attention projections define *what the model attends to*, while the MLP projections act more like a frozen feature bank of general linguistic knowledge. The original LoRA paper found that adapting attention projections captures most of the task-specific gain for downstream adaptation, and this has become standard practice (at least I have heard this repeatedly in multiple courses).
 
 in later implementations and to get a boost in accuracy we chose the following final configuration on **Qwen1.7B** after some hyperparameter tuning.
-/n**second setting:**
+
+**second setting:**
 | Parameter | Value | 
 |---|---|
 | `r` (rank) | 32 |
