@@ -55,7 +55,8 @@ class OpinionExtractor:
         model = get_peft_model(model, LoraConfig(
             r=32 , lora_alpha=64, lora_dropout=0.05, bias="none",
             task_type="CAUSAL_LM",
-            target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+            #target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+            target_modules = "all-linear"
         ))
         model.print_trainable_parameters()
 
@@ -73,7 +74,7 @@ class OpinionExtractor:
     output_dir=self.OUTPUT_DIR,
     per_device_train_batch_size=2,
     gradient_accumulation_steps=grad_accum,
-    num_train_epochs=3,
+    num_train_epochs=2,
     learning_rate=lr,
     fp16=True,
     logging_steps=20,
