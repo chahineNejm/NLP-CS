@@ -71,7 +71,7 @@ class OpinionExtractor:
             train_dataset=train_ds,
             args=SFTConfig(
     output_dir=self.OUTPUT_DIR,
-    per_device_train_batch_size=4,
+    per_device_train_batch_size=2,
     gradient_accumulation_steps=grad_accum,
     num_train_epochs=3,
     learning_rate=lr,
