@@ -2,13 +2,13 @@
 ## by Chahine NEJMA
 **Authors:** Chahine Nejma
 **Approach:** Approach 2 — LoRA fine-tuning
-**Base model:** `Qwen/Qwen3-0.6B`
+**Base model:** `Qwen3-0.6B and Qwen3-1.7B `
 
 ### Dev macro-accuracy
 
 | Price | Food | Service | **Macro** |
 |---|---|---|---|
-| 79.67 | 81.33 | 82.00 | **81.00** |
+| 88.01 | 86.5 | 88.33 | **87.60** |
 
 
 <center>
@@ -23,9 +23,11 @@ We tackle aspect-based sentiment classification on French restaurant reviews fro
 
 Rather than treating this as three independent classification heads, we frame it as a single **sequence-to-sequence generation problem**.
 
-## 2. Approach: LoRA Fine-Tuning of Qwen3-0.6B
+## 2. Approach: LoRA Fine-Tuning
 
 We chose **Approach 2** (LoRA fine-tuning via TRL + PEFT) with `Qwen/Qwen3-0.6B` as the base model. Qwen3-0.6B is the smallest authorized model in the list and was selected to keep training tractable on modest hardware. We ran everything on **Google Colab's free tier (single T4 GPU, 16 GB VRAM, fp16)**. The small footprint also kept iteration cycles short (~10 min per training run).
+
+Note on scope: the report was originally written for Qwen3-0.6B (macro 80.77). After hyperparameter tuning (r=32, all-linear targets) I scaled to Qwen3-1.7B with the same LoRA recipe and obtained macro 87.60, which is the result reported in the headline table. Sections 2 and 3.1 retain the 0.6B configuration and 5-run analysis as the original ablation; Section 3.1's comparison table shows both models side by side.
 
 ### 2.1 Prompt Formatting and Chat Template
 
@@ -51,23 +53,32 @@ we have for this setting:
 
 ### 2.2 Parameter-Efficient Fine-Tuning with LoRA
 
-We use **Low-Rank Adaptation**, which freezes the pre-trained weights entirely and injects small trainable low-rank matrices into selected layers. This gives practical benefits: memory consumption drops sharply as the major bottle neck in our training is the inference time of the larger model(tiny comparatively to the backpropagation required for a full model gradient), and the resulting adapter is very small (~20 MB) and can be loaded on top of the unchanged base model for inference.
+We use **Low-Rank Adaptation**, which freezes the pre-trained weights entirely and injects small trainable low-rank matrices into selected layers. This gives practical benefits: memory consumption drops sharply as the major bottleneck in our training is the inference time of the larger model(tiny comparatively to the backpropagation required for a full model gradient), and the resulting adapter is very small (~20 MB) and can be loaded on top of the unchanged base model for inference.
 
 For our configuration, LoRA yields exactly **4,587,520 trainable parameters out of 600,637,440 total (0.7638%)**  a ~130× reduction in the optimization footprint.
 
 **Our LoRA hyperparameters and their rationale:**
-
+**first setting:**
 | Parameter | Value | Rationale |
 |---|---|---|
 | `r` (rank) | 16 | Balances expressiveness and memory; a common sweet spot for instruction-style fine-tuning. |
 | `lora_dropout` | 0.05 | Light regularization against the ~4k noisy training examples. |
 | `target_modules` | Q, K, V, O projections | Only the attention projection matrices are adapted. |
 
+
 **Why adapt only Q, K, V, and O?** In a transformer block, the attention projections define *what the model attends to*, while the MLP projections act more like a frozen feature bank of general linguistic knowledge. The original LoRA paper found that adapting attention projections captures most of the task-specific gain for downstream adaptation, and this has become standard practice (at least I have heard this repeatedly in multiple courses).
+
+in later implementations and to get a boost in accuracy we chose the following final configuration on **Qwen1.7B** after some hyperparameter tuning.
+**second setting:**
+| Parameter | Value | 
+|---|---|
+| `r` (rank) | 32 |
+| `lora_dropout` | 0.05 | 
+| `target_modules` | all-linear |
 
 ## 3. Results
 
-### 3.1 Evaluation over 5 runs
+### 3.1 Evaluation over 5 runs for the Qwen0.6B+LoRA
 
 | Run | Price | Food | Service | Macro Acc |
 |-----|-------|------|---------|-----------|
@@ -82,27 +93,30 @@ The variance across runs is very tight (80.50–80.89), indicating a stable pipe
 
 To quantify the impact of LoRA fine-tuning, we evaluated the base Qwen3-0.6B model (without any fine-tuning) on the full training set using the same prompt template:
 
-| Metric | Base model | LoRA |
-|---|---|---|
-| Price | 25.89% | 79.53% |
-| Food | 77.48% | 81.23% |
-| Service | 63.83% | 81.53% |
-| **Macro** | **55.73%** | **80.77%** |
+| Metric | Base model (QWen 0.6B) | QWen 0.6B + LoRA| Qwen 1.7B + Lora |
+|---|---|---| ---|
+| Price | 25.89% | 79.53% | 88% |
+| Food | 77.48% | 81.23% |     86.5%|
+| Service | 63.83% | 81.53% |88.3%|
+| **Macro** | **55.73%** | **80.77%** |**87.6%**|
 
 ### 3.2 Summary
 
 | Metric | Value |
 |---|---|
-| Trainable parameters | 4,587,520 / 600,637,440 (0.76%) |
-| Training time per run | ~10 min |
+| Trainable parameters for Qwen 0.6B+LoRA(1st setting) | 4,587,520 / 600,637,440 (0.76%) |
+| Training time per run Qwen 0.6B+LoRA(1st setting) | ~10 min |
 | Inference time per dev split | ~10 min (60 batches) |
+| Trainable parameters for Qwen 1.7B+LoRA(2nd setting) | 34,865,152 / 1,755,440,128 (1.98%) |
+| Training time per run for Qwen 1.7B+LoRA(2nd setting) | ~39 min |
+| Inference time per dev split | ~12 min (60 batches) |
 
-Training and inference take roughly the same time because LoRA does not affect forward pass cost, each pass still runs through the full frozen base model. The adapter only adds a negligible overhead. This highlights the efficiency of the method: LoRA fine-tunes less than 1% of the parameters while achieving strong performance.
+Training and inference take roughly the same time on the first setting because LoRA does not affect forward pass cost, each pass still runs through the full frozen base model. The adapter only adds a negligible overhead. This highlights the efficiency of the method: LoRA fine-tunes less than 1% of the parameters while achieving strong performance.
 
 ### 3.3 Base model vs. fine-tuned model: qualitative comparison
 
 The following samples illustrate how the base Qwen3-0.6B (without fine-tuning) compares to the LoRA-fine-tuned model on the same inputs, and through the same promt behavior.
-I was suprised by the fact that through simple prompting the baseline model was able to mimic the output format disired.
+I was suprised by the fact that through simple prompting the baseline model was able to mimic the output format desired.
 
 **Sample 1** — *"J'en ai marre car je ne trouve pas de critiques péjoratives! C'est une valeur sûr..."*
 Raw out:  Price=No Opinion; Food=Positive; Service=Positive
@@ -141,10 +155,10 @@ Base model:  Price=Negative; Food=Positive; Service=Negative.
 
 ### 3.4 Output format compliance
 
-The fine-tuned model outputs the exact expected format (`Price=<label>; Food=<label>; Service=<label>`) on 100% of evaluated samples. No parse failures were observed. Every prediction was genuinely produced by the model, not a regex fallback default. This confirms that the SFT training successfully taught the model both the task semantics and the output structure.
+The fine-tuned model outputs the exact expected format (`Price=<label>; Food=<label>; Service=<label>`) on 100% of evaluated samples. No parse failures were observed. Every prediction was genuinely produced by the model, not a fallback rule. This confirms that the SFT training successfully taught the model both the task semantics and the output structure.
 
 ## 4. Possible Extensions
-- **Constrained decoding** Constrained decoding forces the model to only generate tokens that are compatible with a predefined output format, defined via a regex or grammar. In our case, we verified format compliance on all evaluated samples and found zero deviations; the SFT training already taught the model the exact output structure. Therefore, constrained decoding would add complexity with no accuracy benefit.
+- **Constrained decoding** Constrained decoding forces the model to only generate tokens that are compatible with a predefined output format. In our case, we verified format compliance on all evaluated samples and found zero deviations; the SFT training already taught the model the exact output structure. Therefore, constrained decoding would add complexity with no accuracy benefit.
 
 - **Quantization (QLoRA).** Loading the base model in 4-bit via bitsandbytes would cut memory further and allow fine-tuning larger backbones (Qwen3-1.7B or Qwen3-4B) under the same VRAM budget. *Not used here as bitsandbytes is not on the authorized library list.*
 
@@ -154,7 +168,7 @@ The fine-tuned model outputs the exact expected format (`Price=<label>; Food=<la
     *QLoRA. Taken from the original QLoRA paper.*
     </center>
 
-- **Larger backbone within the allowed list.** Scaling to Qwen3-1.7B or Qwen3-4B with the same LoRA recipe would likely improve accuracy at the cost of longer training.
+- **Larger backbone within the allowed list.** Scaling to Qwen3-4B with the same LoRA recipe would likely improve accuracy at the cost of longer training.
 
 - **Longer training with lower LR.** Our current run sits on the undertrained side of the loss curve; 2–3 epochs with a slightly lower LR could yield additional gains, particularly on the cleaner aspects.
 
